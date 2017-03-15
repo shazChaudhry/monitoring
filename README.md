@@ -1,4 +1,4 @@
-# Monitoring and alerting (WIP)
+# Monitoring (WIP)
 - [prometheus/node_exporter](https://github.com/prometheus/node_exporter)
 - [google/cadvisor](https://github.com/google/cadvisor)
 - [Prometheus](https://prometheus.io/docs/introduction/overview/)
