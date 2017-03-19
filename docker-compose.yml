@@ -1,64 +1,6 @@
 version: "3.1"
  
 services:
-    
-#    swarm-listener:
-#        image: 
-#            vfarcic/docker-flow-swarm-listener
-#        networks:
-#            - proxy
-#        volumes:
-#            - /var/run/docker.sock:/var/run/docker.sock
-#        environment:
-#            - DF_NOTIFY_CREATE_SERVICE_URL=http://proxy:8080/v1/docker-flow-proxy/reconfigure
-#            - DF_NOTIFY_REMOVE_SERVICE_URL=http://proxy:8080/v1/docker-flow-proxy/remove
-#        logging:
-#          driver: gelf
-#          options:
-#            gelf-address: udp://127.0.0.1:12201
-#        deploy:
-#            placement:
-#                constraints: [node.role == manager]
-# 
-#    proxy:
-#        image: 
-#            vfarcic/docker-flow-proxy
-#        ports:
-#            - 80:80
-#            - 443:443
-#        networks:
-#            - proxy
-#        environment:
-#            - LISTENER_ADDRESS=swarm-listener
-#            - MODE=swarm
-#        logging:
-#          driver: gelf
-#          options:
-#            gelf-address: udp://127.0.0.1:12201
-#        deploy:
-#            replicas: 2
-#    
-#    jenkins:
-#        image: stefanprodan/jenkins
-#        environment:
-#            - JENKINS_OPTS='--prefix=/jenkins'
-#        networks:
-#            - proxy
-#        volumes:
-#            - /var/run/docker.sock:/var/run/docker.sock
-#            - java_home:/var/jenkins_home
-#            - ansible_home:/etc/ansible
-#        logging:
-#          driver: gelf
-#          options:
-#            gelf-address: udp://127.0.0.1:12201
-#        deploy:
-#            labels:
-#                - com.df.notify=true
-#                - com.df.distribute=true
-#                - com.df.servicePath=/jenkins
-#                - com.df.port=8080
-#                
 
     prometheus:
         build: prom
@@ -67,12 +9,14 @@ services:
             - "9090:9090"
         networks:
             - monitoring
+        logging:
+          driver: gelf
+          options:
+            gelf-address: udp://127.0.0.1:12201
             
     node-exporter:
         image: prom/node-exporter:master
         command: -collector.procfs /host/proc -collector.sysfs /host/sys -collector.filesystem.ignored-mount-points '^/(sys|proc|dev|host|etc)($$|/)' --collector.textfile.directory /etc/node-exporter/ --collectors.enabled='conntrack,diskstats,entropy,filefd,filesystem,loadavg,mdadm,meminfo,netdev,netstat,stat,textfile,time,vmstat,ipvs'
-        deploy:
-            mode: global
         volumes:
             - "/proc:/host/proc"
             - "/sys:/host/sys"
@@ -82,11 +26,15 @@ services:
             - HOST_HOSTNAME=/etc/host_hostname
         networks:
             - monitoring
+        logging:
+          driver: gelf
+          options:
+            gelf-address: udp://127.0.0.1:12201
+        deploy:
+            mode: global         
 
     cadvisor:
         image: google/cadvisor:canary
-        deploy:
-            mode: global
         volumes:
             - "/:/rootfs"
             - "/var/run:/var/run"
@@ -94,11 +42,16 @@ services:
             - "/var/lib/docker:/var/lib/docker"
         networks:
             - monitoring
+        logging:
+          driver: gelf
+          options:
+            gelf-address: udp://127.0.0.1:12201
+        deploy:
+            mode: global
       
 networks:
     monitoring:
-#    proxy:
-# 
+
 #volumes:
 #    java_home:
 #    ansible_home:
