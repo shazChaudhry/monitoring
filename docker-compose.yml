@@ -51,7 +51,3 @@ services:
       
 networks:
     monitoring:
-
-#volumes:
-#    java_home:
-#    ansible_home:
