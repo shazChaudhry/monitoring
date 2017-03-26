@@ -2,34 +2,44 @@ version: "3.1"
 
 services:
 
-    grafana:
-        image: grafana/grafana
-        volumes:
-            - grafana_data:/var/lib/grafana
-        ports:
-            - 3000:3000
-        networks:
-            - monitoring
-        logging:
-            driver: gelf
-            options:
-                gelf-address: udp://127.0.0.1:12201
-
     prometheus:
         image: quay.io/prometheus/prometheus
+        command:
+            - '-config.file=/etc/prometheus/prometheus.yml'
+            - '-storage.local.path=/prometheus'
+            - '-alertmanager.url=http://alertmanager:9093'
+            - '-storage.local.memory-chunks=100000'
+        ports:
+            - 9090:9090
         volumes:
-            - ./prom/prometheus.yml:/etc/prometheus/prometheus.yml
+            - ./prometheus/:/etc/prometheus/
             - prometheus:/prometheus
         networks:
             - monitoring
         logging:
             driver: gelf
             options:
-                gelf-address: udp://127.0.0.1:12201
+                gelf-address: udp://localhost:12201
+
+    alertmanager:
+        image: quay.io/prometheus/alertmanager
+        volumes: 
+            - ./alertmanager/:/etc/alertmanager/
+        command:
+            - '-config.file=/etc/alertmanager/config.yml'
+            - '-storage.path=/alertmanager'
+        ports:
+            - 9093:9093
+        networks:
+            - monitoring
+        logging:
+            driver: gelf
+            options:
+                gelf-address: udp://localhost:12201
             
     node-exporter:
         image: quay.io/prometheus/node-exporter
-        command: -collector.procfs /host/proc -collector.sysfs /host/sys -collector.filesystem.ignored-mount-points '^/(sys|proc|dev|host|etc)($$|/)'
+#        command: -collector.procfs /host/proc -collector.sysfs /host/sys -collector.filesystem.ignored-mount-points '^/(sys|proc|dev|host|etc)($$|/)'
         volumes:
             - "/proc:/host/proc"
             - "/sys:/host/sys"
@@ -42,9 +52,9 @@ services:
         logging:
             driver: gelf
             options:
-                gelf-address: udp://127.0.0.1:12201
+                gelf-address: udp://localhost:12201
         deploy:
-            mode: global         
+            mode: global       
 
     cadvisor:
         image: google/cadvisor
@@ -58,9 +68,22 @@ services:
         logging:
             driver: gelf
             options:
-                gelf-address: udp://127.0.0.1:12201
+                gelf-address: udp://localhost:12201
         deploy:
             mode: global
+
+    grafana:
+        image: grafana/grafana
+        volumes:
+            - grafana_data:/var/lib/grafana
+        ports:
+            - 3000:3000
+        networks:
+            - monitoring
+        logging:
+            driver: gelf
+            options:
+                gelf-address: udp://localhost:12201  
 
 networks:
     monitoring:
