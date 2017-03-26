@@ -1,22 +1,35 @@
 version: "3.1"
- 
+
 services:
 
-    prometheus:
-        build: prom
-        image: prometheus
+    grafana:
+        image: grafana/grafana
+        volumes:
+            - grafana_data:/var/lib/grafana
         ports:
-            - "9090:9090"
+            - 3000:3000
         networks:
             - monitoring
         logging:
-          driver: gelf
-          options:
-            gelf-address: udp://127.0.0.1:12201
+            driver: gelf
+            options:
+                gelf-address: udp://127.0.0.1:12201
+
+    prometheus:
+        image: quay.io/prometheus/prometheus
+        volumes:
+            - ./prom/prometheus.yml:/etc/prometheus/prometheus.yml
+            - prometheus:/prometheus
+        networks:
+            - monitoring
+        logging:
+            driver: gelf
+            options:
+                gelf-address: udp://127.0.0.1:12201
             
     node-exporter:
-        image: prom/node-exporter:master
-        command: -collector.procfs /host/proc -collector.sysfs /host/sys -collector.filesystem.ignored-mount-points '^/(sys|proc|dev|host|etc)($$|/)' --collector.textfile.directory /etc/node-exporter/ --collectors.enabled='conntrack,diskstats,entropy,filefd,filesystem,loadavg,mdadm,meminfo,netdev,netstat,stat,textfile,time,vmstat,ipvs'
+        image: quay.io/prometheus/node-exporter
+        command: -collector.procfs /host/proc -collector.sysfs /host/sys -collector.filesystem.ignored-mount-points '^/(sys|proc|dev|host|etc)($$|/)'
         volumes:
             - "/proc:/host/proc"
             - "/sys:/host/sys"
@@ -27,27 +40,31 @@ services:
         networks:
             - monitoring
         logging:
-          driver: gelf
-          options:
-            gelf-address: udp://127.0.0.1:12201
+            driver: gelf
+            options:
+                gelf-address: udp://127.0.0.1:12201
         deploy:
             mode: global         
 
     cadvisor:
-        image: google/cadvisor:canary
+        image: google/cadvisor
         volumes:
-            - "/:/rootfs"
-            - "/var/run:/var/run"
-            - "/sys:/sys"
-            - "/var/lib/docker:/var/lib/docker"
+            - "/:/rootfs:ro"
+            - "/var/run:/var/run:rw"
+            - "/sys:/sys:ro"
+            - "/var/lib/docker:/var/lib/docker:ro"
         networks:
             - monitoring
         logging:
-          driver: gelf
-          options:
-            gelf-address: udp://127.0.0.1:12201
+            driver: gelf
+            options:
+                gelf-address: udp://127.0.0.1:12201
         deploy:
             mode: global
-      
+
 networks:
     monitoring:
+
+volumes:
+    prometheus:
+    grafana_data:

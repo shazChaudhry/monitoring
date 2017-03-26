@@ -1,0 +1,1 @@
+Grafana dashboard (Docker-Swarm-Monitor-v2) imported from 'https://grafana.com/dashboards/1505'
