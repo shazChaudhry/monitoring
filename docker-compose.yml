@@ -4,13 +4,13 @@ services:
 
     prometheus:
         image: quay.io/prometheus/prometheus
-        command:
-            - '-config.file=/etc/prometheus/prometheus.yml'
-            - '-storage.local.path=/prometheus'
-            - '-alertmanager.url=http://alertmanager:9093'
-            - '-storage.local.memory-chunks=100000'
-        ports:
-            - 9090:9090
+#        command:
+#            - '-config.file=/etc/prometheus/prometheus.yml'
+#            - '-storage.local.path=/prometheus'
+#            - '-alertmanager.url=http://alertmanager:9093'
+#            - '-storage.local.memory-chunks=100000'
+#        ports:
+#            - 9090:9090
         volumes:
             - ./prometheus/:/etc/prometheus/
             - prometheus:/prometheus
@@ -18,28 +18,28 @@ services:
             - monitoring
         logging:
             driver: gelf
-            options:
-                gelf-address: udp://localhost:12201
+            options: 
+                gelf-address: udp://127.0.0.1:12201
 
-    alertmanager:
-        image: quay.io/prometheus/alertmanager
-        volumes: 
-            - ./alertmanager/:/etc/alertmanager/
-        command:
-            - '-config.file=/etc/alertmanager/config.yml'
-            - '-storage.path=/alertmanager'
-        ports:
-            - 9093:9093
-        networks:
-            - monitoring
-        logging:
-            driver: gelf
-            options:
-                gelf-address: udp://localhost:12201
-            
+#    alertmanager:
+#        image: quay.io/prometheus/alertmanager
+#        volumes: 
+#            - ./alertmanager/:/etc/alertmanager/
+#        command:
+#            - '-config.file=/etc/alertmanager/config.yml'
+#            - '-storage.path=/alertmanager'
+#        ports:
+#            - 9093:9093
+#        networks:
+#            - monitoring
+#        logging:
+#            driver: gelf
+#            options: 
+#                gelf-address: udp://127.0.0.1:12201
+
     node-exporter:
         image: quay.io/prometheus/node-exporter
-#        command: -collector.procfs /host/proc -collector.sysfs /host/sys -collector.filesystem.ignored-mount-points '^/(sys|proc|dev|host|etc)($$|/)'
+        command: -collector.procfs /host/proc -collector.sysfs /host/sys -collector.filesystem.ignored-mount-points '^/(sys|proc|dev|host|etc)($$|/)'
         volumes:
             - "/proc:/host/proc"
             - "/sys:/host/sys"
@@ -51,8 +51,8 @@ services:
             - monitoring
         logging:
             driver: gelf
-            options:
-                gelf-address: udp://localhost:12201
+            options: 
+                gelf-address: udp://127.0.0.1:12201
         deploy:
             mode: global       
 
@@ -67,8 +67,8 @@ services:
             - monitoring
         logging:
             driver: gelf
-            options:
-                gelf-address: udp://localhost:12201
+            options: 
+                gelf-address: udp://127.0.0.1:12201
         deploy:
             mode: global
 
@@ -82,8 +82,8 @@ services:
             - monitoring
         logging:
             driver: gelf
-            options:
-                gelf-address: udp://localhost:12201  
+            options: 
+                gelf-address: udp://127.0.0.1:12201  
 
 networks:
     monitoring:
