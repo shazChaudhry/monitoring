@@ -4,11 +4,6 @@ services:
 
     prometheus:
         image: quay.io/prometheus/prometheus
-#        command:
-#            - '-config.file=/etc/prometheus/prometheus.yml'
-#            - '-storage.local.path=/prometheus'
-#            - '-alertmanager.url=http://alertmanager:9093'
-#            - '-storage.local.memory-chunks=100000'
 #        ports:
 #            - 9090:9090
         volumes:
@@ -20,22 +15,6 @@ services:
             driver: gelf
             options: 
                 gelf-address: udp://127.0.0.1:12201
-
-#    alertmanager:
-#        image: quay.io/prometheus/alertmanager
-#        volumes: 
-#            - ./alertmanager/:/etc/alertmanager/
-#        command:
-#            - '-config.file=/etc/alertmanager/config.yml'
-#            - '-storage.path=/alertmanager'
-#        ports:
-#            - 9093:9093
-#        networks:
-#            - monitoring
-#        logging:
-#            driver: gelf
-#            options: 
-#                gelf-address: udp://127.0.0.1:12201
 
     node-exporter:
         image: quay.io/prometheus/node-exporter
@@ -60,7 +39,7 @@ services:
         image: google/cadvisor
         volumes:
             - "/:/rootfs:ro"
-            - "/var/run:/var/run:rw"
+            - "/var/run:/var/run"
             - "/sys:/sys:ro"
             - "/var/lib/docker:/var/lib/docker:ro"
         networks:
