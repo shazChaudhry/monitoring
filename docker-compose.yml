@@ -1,4 +1,4 @@
-version: "3.1"
+version: "3.6"
 
 services:
 
@@ -11,10 +11,6 @@ services:
             - prometheus:/prometheus
         networks:
             - monitoring
-        logging:
-            driver: gelf
-            options: 
-                gelf-address: udp://127.0.0.1:12201
 
     node-exporter:
         image: quay.io/prometheus/node-exporter
@@ -28,12 +24,8 @@ services:
             - HOST_HOSTNAME=/etc/host_hostname
         networks:
             - monitoring
-        logging:
-            driver: gelf
-            options: 
-                gelf-address: udp://127.0.0.1:12201
         deploy:
-            mode: global       
+            mode: global
 
     cadvisor:
         image: google/cadvisor
@@ -44,10 +36,6 @@ services:
             - "/var/lib/docker:/var/lib/docker:ro"
         networks:
             - monitoring
-        logging:
-            driver: gelf
-            options: 
-                gelf-address: udp://127.0.0.1:12201
         deploy:
             mode: global
 
@@ -59,10 +47,6 @@ services:
             - 3000:3000
         networks:
             - monitoring
-        logging:
-            driver: gelf
-            options: 
-                gelf-address: udp://127.0.0.1:12201  
 
 networks:
     monitoring:
